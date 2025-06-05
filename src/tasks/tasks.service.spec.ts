@@ -55,12 +55,28 @@ describe('TasksService', () => {
   });
 
   describe('getAllTasks', () => {
-    it('should return all tasks', () => {
+    it('should return all tasks when no filter is provided', () => {
       const tasks = service.getAllTasks();
       expect(tasks).toHaveLength(2);
       expect(tasks).toEqual([
         { id: mockUUIDs[0], title: 'Task 1', isCompleted: false },
         { id: mockUUIDs[1], title: 'Task 2', isCompleted: true },
+      ]);
+    });
+
+    it('should return only completed tasks when isCompleted is true', () => {
+      const tasks = service.getAllTasks(true);
+      expect(tasks).toHaveLength(1);
+      expect(tasks).toEqual([
+        { id: mockUUIDs[1], title: 'Task 2', isCompleted: true },
+      ]);
+    });
+
+    it('should return only incompleted tasks when isCompleted is false', () => {
+      const tasks = service.getAllTasks(false);
+      expect(tasks).toHaveLength(1);
+      expect(tasks).toEqual([
+        { id: mockUUIDs[0], title: 'Task 1', isCompleted: false },
       ]);
     });
   });

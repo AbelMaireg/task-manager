@@ -20,7 +20,10 @@ export class TasksService {
     return newTask;
   }
 
-  getAllTasks() {
+  getAllTasks(isCompleted?: boolean): Task[] {
+    if (isCompleted !== undefined) {
+      return this.tasks.filter((task) => task.isCompleted === isCompleted);
+    }
     return this.tasks;
   }
 
