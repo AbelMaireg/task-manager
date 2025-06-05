@@ -1,98 +1,138 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Task Management API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A simple NestJS-based REST API for managing tasks, allowing users to create, read, update, and delete tasks with a completion status. The API uses an in-memory store for simplicity and includes UUID generation for unique task IDs.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Table of Contents
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Running the Application](#running-the-application)
+- [API Endpoints](#api-endpoints)
+- [Testing](#testing)
+- [Project Structure](#project-structure)
+- [Dependencies](#dependencies)
 
-## Description
+## Features
+- Create, read, update, and delete tasks.
+- Filter tasks by completion status (`isCompleted` query parameter).
+- Input validation using `class-validator`.
+- Unique task IDs generated using a custom UUID v4 generator.
+- Comprehensive unit tests with Jest for service and controller.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
+- Node.js (v18 or higher)
+- Yarn (v1.22 or higher)
+- NestJS CLI (optional, for generating new resources)
 
-## Project setup
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd task-management-api
+   ```
+2. Install dependencies:
+   ```bash
+   yarn install
+   ```
+3. Ensure the following dependencies are installed:
+   - `@nestjs/core`, `@nestjs/common`, `@nestjs/testing`
+   - `class-validator`, `class-transformer`
+   - `jest`, `@types/jest`, `ts-jest`
 
-```bash
-$ yarn install
+## Running the Application
+1. Start the development server:
+   ```bash
+   yarn start:dev
+   ```
+2. The API will be available at `http://localhost:3000`.
+
+## API Endpoints
+The API provides the following endpoints under the `/tasks` route:
+
+| Method | Endpoint                  | Description                              | Request Body / Query Parameters                     |
+|--------|---------------------------|------------------------------------------|----------------------------------------------------|
+| `POST` | `/tasks`                  | Create a new task                        | `{ "title": string, "isCompleted": boolean }`       |
+| `GET`  | `/tasks`                  | Get all tasks (optional filter)          | `?isCompleted=true` or `?isCompleted=false` (optional) |
+| `GET`  | `/tasks/:title`           | Get a task by title                      | None                                               |
+| `PUT`  | `/tasks/:id`              | Update a task by ID                      | `{ "title": string, "isCompleted": boolean }`       |
+| `DELETE` | `/tasks/:id`            | Delete a task by ID                      | None                                               |
+
+### Example Requests
+- **Create a task**:
+  ```bash
+  curl -X POST http://localhost:3000/tasks -H "Content-Type: application/json" -d '{"title": "New Task", "isCompleted": false}'
+  ```
+  Response: `{ "id": "123e4567-e89b-12d3-a456-426614174000", "title": "New Task", "isCompleted": false }`
+
+- **Get all tasks**:
+  ```bash
+  curl http://localhost:3000/tasks
+  ```
+  Response: `[{ "id": "...", "title": "Task 1", "isCompleted": false }, { "id": "...", "title": "Task 2", "isCompleted": true }]`
+
+- **Get completed tasks**:
+  ```bash
+  curl http://localhost:3000/tasks?isCompleted=true
+  ```
+  Response: `[{ "id": "...", "title": "Task 2", "isCompleted": true }]`
+
+- **Get task by title**:
+  ```bash
+  curl http://localhost:3000/tasks/Task%201
+  ```
+  Response: `{ "id": "...", "title": "Task 1", "isCompleted": false }`
+
+- **Update a task**:
+  ```bash
+  curl -X PUT http://localhost:3000/tasks/123e4567-e89b-12d3-a456-426614174000 -H "Content-Type: application/json" -d '{"title": "Updated Task", "isCompleted": true}'
+  ```
+  Response: `{ "id": "...", "title": "Updated Task", "isCompleted": true }`
+
+- **Delete a task**:
+  ```bash
+  curl -X DELETE http://localhost:3000/tasks/123e4567-e89b-12d3-a456-426614174000
+  ```
+  Response: `{ "id": "...", "title": "Task 1", "isCompleted": false }`
+
+## Testing
+The project includes unit tests for the `TasksService` and `TasksController` using Jest.
+
+1. Run the tests:
+   ```bash
+   yarn test
+   ```
+2. The test suite covers:
+   - Task creation, retrieval, updating, and deletion.
+   - Filtering tasks by completion status.
+   - Error handling for nonexistent tasks.
+   - Input validation using `class-validator`.
+
+## Project Structure
+```
+src/
+├── tasks/
+│   ├── dto/
+│   │   └── task.dto.ts         # DTOs with class-validator rules
+│   ├── tasks.controller.ts     # REST API controller
+│   ├── tasks.service.ts        # Business logic for task management
+│   ├── tasks.controller.spec.ts # Controller unit tests
+│   ├── tasks.service.spec.ts   # Service unit tests
+│   └── tasks.module.ts         # NestJS module
+├── utils/
+│   └── uuid-generator.ts       # UUID v4 generator
+├── app.module.ts               # Root module
+└── main.ts                     # Application bootstrap
 ```
 
-## Compile and run the project
+## Dependencies
+- **Runtime**:
+  - `@nestjs/core`, `@nestjs/common`
+  - `class-validator`, `class-transformer`
+- **Development**:
+  - `@nestjs/testing`, `jest`, `@types/jest`, `ts-jest`
 
+To install dependencies:
 ```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+yarn add @nestjs/core @nestjs/common class-validator class-transformer
+yarn add --dev @nestjs/testing jest @types/jest ts-jest
 ```
-
-## Run tests
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
